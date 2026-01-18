@@ -28,25 +28,27 @@
     Gallery.prototype.getElement = function () {
         if (!this.$element) {
           this.$element = this.render().hide().insertAfter(this.index.$element);
-          $('a', this.$element).lightBox();
+          $('a', this.$element).venobox();
         }
         return this.$element;
     };
 
     Gallery.prototype.render = function () {
-      return $('<ul>', {
+      return $('<div>', {
         'class': 'card-columns',
-        'id': this.url
+        'id': this.url,
       }).append(
-        $.map(this.pictures, this.renderPicture)
+        $.map(this.pictures, this.renderPicture.bind(this))
       );
     }
 
     Gallery.prototype.renderPicture = function (picture) {
-      return $('<li class="card">').append(
+      return $('<figure>').append(
         $('<a>', {
+          'class': "card img-fluid",
           'href': picture.src,
-          'title': picture.title
+          'title': picture.title,
+          'data-gall': this.slug,
         }).append(
           $('<img>', {
             'src': picture.thumb.src,
@@ -61,12 +63,16 @@
       this.options = options || {};
       this.items = [];
       this.$element = $(this.options.element);
+      this.$title = $(this.options.title);
+      this.listIndexTitle = this.$title.text();
+      this.$breadcrumb = $(this.options.breadcrumb);
       this.$backButtons = $(this.options.backButtons);
 
       this.$backButtons.on('click', function(e) {
         this.listIndex()
         e.preventDefault();
       }.bind(this));
+
       this.$element.on('click', 'a[data-gallery]', function (e) {
         var $card = $(e.currentTarget).closest('.card');
         this.showGallery($card.data('gallery'));
@@ -102,7 +108,7 @@
 
     Galleries.prototype.renderGaleryCard = function(gallery) {
       var url = '#' + gallery.url;
-      var $card = $('<li class="card">').append(
+      var $card = $('<div class="card">').append(
         $('<a>', {
           'href': url,
           'data-gallery': gallery.slug
@@ -127,17 +133,21 @@
     Galleries.prototype.showGallery = function(gallery) {
       var $el = gallery.getElement();
       this.$element.hide();
-      $el.fadeIn('slow', function () {
-        this.$backButtons.css('visibility', 'visible');
-      }.bind(this));
+      $el.fadeIn('slow');
+      this.$title.text(gallery.title);
+      $('.breadcrumb-item.active', this.$breadcrumb).text(gallery.title);
+      this.$breadcrumb.css('visibility', 'visible');
+      this.$backButtons.css('visibility', 'visible');
     }
     Galleries.prototype.listIndex = function (e) {
       var loadedGalleries = $.map(this.items, function(item) {
         return item.$element ? item.$element.get(0) : null;
       }).filter(Boolean);
       $(loadedGalleries).hide();
-      this.$backButtons.css('visibility', 'hidden');
       this.$element.fadeIn('slow');
+      this.$title.text(this.listIndexTitle);
+      this.$breadcrumb.css('visibility', 'hidden');
+      this.$backButtons.css('visibility', 'hidden');
     };
 
     window.Galleries = Galleries;
