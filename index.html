@@ -360,6 +360,40 @@
     });
     galleries.loadData();
   });
+  
+  // Handle tab activation with URL hash
+  $(function() {
+    // On page load, check for hash and activate corresponding tab
+    const hash = window.location.hash;
+    if (hash) {
+      const tabElement = document.querySelector(`[href="${hash}"]`);
+      if (tabElement) {
+        const tab = new bootstrap.Tab(tabElement);
+        tab.show();
+      }
+    }
+
+    // Intercept tab click to update URL hash - only for hash links
+    document.querySelectorAll('[data-bs-toggle="pill"][href^="#"]').forEach(tabLink => {
+      tabLink.addEventListener('click', function(event) {
+        const tab = new bootstrap.Tab(this);
+        tab.show();
+        window.location.hash = this.getAttribute('href');
+      });
+    });
+
+    // Handle browser back/forward navigation
+    window.addEventListener('popstate', function() {
+      const hash = window.location.hash;
+      if (hash) {
+        const tabElement = document.querySelector(`[href="${hash}"]`);
+        if (tabElement) {
+          const tab = new bootstrap.Tab(tabElement);
+          tab.show();
+        }
+      }
+    });
+  });
   </script>
 </body>
 </html>
