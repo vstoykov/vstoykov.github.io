@@ -372,10 +372,11 @@
       tabsMap.set(href, new bootstrap.Tab(tabLink));
 
       tabLink.addEventListener('click', function(event) {
+        event.preventDefault();
         if (href === '#home') {
           window.history.pushState(null, null, window.location.pathname);
         } else {
-          window.location.hash = href;
+          window.history.pushState(null, null, href);
         }
         activateTab(href);
       });
@@ -400,6 +401,7 @@
     if (hash) {
       activateTab(hash);
       cleanUrlForHome();
+      window.scrollTo(0, 0);
     }
 
     // Browser navigation
