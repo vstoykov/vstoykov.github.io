@@ -361,30 +361,6 @@
     });
     galleries.loadData();
 
-    // Handle gallery hash on page load and navigation
-    // Use a flag to ensure galleries are loaded before handling hash
-    let galleriesLoaded = false;
-    
-    galleries.loadData = (function(originalLoadData) {
-      return function() {
-        originalLoadData.call(this);
-        galleriesLoaded = true;
-        handleGalleryHash();
-      };
-    })(galleries.loadData);
-
-    function handleGalleryHash() {
-      const hash = window.location.hash;
-      if (hash && hash.startsWith(galleries.hashPrefix)) {
-        if (galleriesLoaded) {
-          galleries.handleHash(hash);
-        }
-      }
-    }
-
-    window.addEventListener('popstate', handleGalleryHash);
-    handleGalleryHash();
-
     // Cache for Tab instances - scoped and renamed
     const tabsMap = new Map();
 
@@ -401,7 +377,6 @@
     });
 
     function navigateToTab(hash) {
-      // Handle tab activation including gallery sub-hashes
       const baseHash = hash.split('/')[0];
       const tab = tabsMap.get(baseHash) || tabsMap.get(hash);
       
@@ -410,7 +385,6 @@
         window.scrollTo(0, 0);
       }
       
-      // Clean URL for home
       if (hash === '#home') {
         window.history.replaceState(null, null, window.location.pathname);
       }
