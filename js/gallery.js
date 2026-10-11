@@ -71,8 +71,7 @@
       this.setupHashListener();
 
       this.$backButtons.on('click', function(e) {
-        this.listIndex()
-        window.history.pushState(null, null, this.hashPrefix);
+        this.listIndex();
         e.preventDefault();
       }.bind(this));
 
@@ -137,7 +136,7 @@
       return $card;
     }
 
-    Galleries.prototype.showGallery = function(gallery) {
+    Galleries.prototype.showGallery = function(gallery, updateHash) {
       var $el = gallery.getElement();
       this.$element.hide();
       $el.fadeIn('slow');
@@ -145,9 +144,11 @@
       $('.breadcrumb-item.active', this.$breadcrumb).text(gallery.title);
       this.$breadcrumb.css('visibility', 'visible');
       this.$backButtons.css('visibility', 'visible');
-      window.history.pushState(null, null, this.hashPrefix + '/' + gallery.slug);
+      if (updateHash !== false) {
+        window.history.pushState(null, null, this.hashPrefix + '/' + gallery.slug);
+      }
     }
-    Galleries.prototype.listIndex = function (e) {
+    Galleries.prototype.listIndex = function (e, updateHash) {
       var loadedGalleries = $.map(this.items, function(item) {
         return item.$element ? item.$element.get(0) : null;
       }).filter(Boolean);
@@ -156,13 +157,15 @@
       this.$title.text(this.listIndexTitle);
       this.$breadcrumb.css('visibility', 'hidden');
       this.$backButtons.css('visibility', 'hidden');
-      window.history.pushState(null, null, this.hashPrefix);
-    };
+      if (updateHash !== false) {
+        window.history.pushState(null, null, this.hashPrefix);
+      }
+    }
 
     Galleries.prototype.handleHash = function() {
       var hash = window.location.hash;
       if (!hash || !hash.startsWith(this.hashPrefix)) {
-        this.listIndex();
+        this.listIndex(false);
         return;
       }
       
@@ -171,12 +174,12 @@
         var gallery = this.items.find(item => item.slug === slug);
         
         if (gallery) {
-          this.showGallery(gallery);
+          this.showGallery(gallery, false);
           return;
         }
       }
-      this.listIndex();
-    };
+      this.listIndex(false);
+    }
 
     window.Galleries = Galleries;
 })(jQuery);
