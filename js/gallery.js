@@ -109,7 +109,7 @@
 
     Galleries.prototype.render = function () {
       this.$element.html('');
-      var elements = $.map(this.items, this.renderGaleryCard);
+      var elements = $.map(this.items, this.renderGaleryCard.bind(this));
       this.$element.append(elements);
     }
 
