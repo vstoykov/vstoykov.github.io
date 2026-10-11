@@ -363,35 +363,50 @@
   
   // Handle tab activation with URL hash
   $(function() {
-    // On page load, check for hash and activate corresponding tab
-    const hash = window.location.hash;
-    if (hash) {
-      const tabElement = document.querySelector(`[href="${hash}"]`);
-      if (tabElement) {
-        const tab = new bootstrap.Tab(tabElement);
-        tab.show();
-      }
-    }
+    // Cache for Tab instances - scoped and renamed
+    const tabsMap = new Map();
 
-    // Intercept tab click to update URL hash - only for hash links
+    // Single iteration: build cache AND attach click handlers
     document.querySelectorAll('[data-bs-toggle="pill"][href^="#"]').forEach(tabLink => {
+      const href = tabLink.getAttribute('href');
+      tabsMap.set(href, new bootstrap.Tab(tabLink));
+
       tabLink.addEventListener('click', function(event) {
-        const tab = new bootstrap.Tab(this);
-        tab.show();
-        window.location.hash = this.getAttribute('href');
+        if (href === '#home') {
+          window.history.pushState(null, null, window.location.pathname);
+        } else {
+          window.location.hash = href;
+        }
+        activateTab(href);
       });
     });
 
-    // Handle browser back/forward navigation
-    window.addEventListener('popstate', function() {
-      const hash = window.location.hash;
-      if (hash) {
-        const tabElement = document.querySelector(`[href="${hash}"]`);
-        if (tabElement) {
-          const tab = new bootstrap.Tab(tabElement);
-          tab.show();
-        }
+    function activateTab(hash) {
+      const tab = tabsMap.get(hash);
+      if (tab) {
+        tab.show();
+        window.scrollTo(0, 0);
       }
+    }
+
+    function cleanUrlForHome() {
+      if (window.location.hash === '#home') {
+        window.history.replaceState(null, null, window.location.pathname);
+      }
+    }
+
+    // On page load
+    const hash = window.location.hash;
+    if (hash) {
+      activateTab(hash);
+      cleanUrlForHome();
+    }
+
+    // Browser navigation
+    window.addEventListener('popstate', function() {
+      const hash = window.location.hash || '#home';
+      activateTab(hash);
+      cleanUrlForHome();
     });
   });
   </script>
