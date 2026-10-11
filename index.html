@@ -357,12 +357,10 @@
         backButtons: '.backToGalleries',
         breadcrumb: 'nav[aria-label=breadcrumb]',
         folderImageSrc: 'img/gallery-folder.png',
+        hashPrefix: '#gallery'
     });
     galleries.loadData();
-  });
-  
-  // Handle tab activation with URL hash
-  $(function() {
+
     // Cache for Tab instances - scoped and renamed
     const tabsMap = new Map();
 
@@ -373,25 +371,21 @@
 
       tabLink.addEventListener('click', function(event) {
         event.preventDefault();
-        if (href === '#home') {
-          window.history.pushState(null, null, window.location.pathname);
-        } else {
-          window.history.pushState(null, null, href);
-        }
-        activateTab(href);
+        window.history.pushState(null, null, href === '#home' ? window.location.pathname : href);
+        navigateToTab(href);
       });
     });
 
-    function activateTab(hash) {
-      const tab = tabsMap.get(hash);
+    function navigateToTab(hash) {
+      const baseHash = hash.split('/')[0];
+      const tab = tabsMap.get(baseHash) || tabsMap.get(hash);
+      
       if (tab) {
         tab.show();
         window.scrollTo(0, 0);
       }
-    }
-
-    function cleanUrlForHome() {
-      if (window.location.hash === '#home') {
+      
+      if (hash === '#home') {
         window.history.replaceState(null, null, window.location.pathname);
       }
     }
@@ -399,16 +393,13 @@
     // On page load
     const hash = window.location.hash;
     if (hash) {
-      activateTab(hash);
-      cleanUrlForHome();
-      window.scrollTo(0, 0);
+      navigateToTab(hash);
     }
 
     // Browser navigation
     window.addEventListener('popstate', function() {
       const hash = window.location.hash || '#home';
-      activateTab(hash);
-      cleanUrlForHome();
+      navigateToTab(hash);
     });
   });
   </script>

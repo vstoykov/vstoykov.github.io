@@ -67,9 +67,12 @@
       this.listIndexTitle = this.$title.text();
       this.$breadcrumb = $(this.options.breadcrumb);
       this.$backButtons = $(this.options.backButtons);
+      this.hashPrefix = this.options.hashPrefix || '#gallery';
+      this.setupHashListener();
 
       this.$backButtons.on('click', function(e) {
         this.listIndex()
+        window.history.pushState(null, null, this.hashPrefix);
         e.preventDefault();
       }.bind(this));
 
@@ -96,8 +99,12 @@
           });
         }.bind(this));
         this.render();
-        this.listIndex();
+        this.handleHash();
       });
+    };
+
+    Galleries.prototype.setupHashListener = function() {
+      window.addEventListener('popstate', this.handleHash.bind(this));
     };
 
     Galleries.prototype.render = function () {
@@ -107,7 +114,7 @@
     }
 
     Galleries.prototype.renderGaleryCard = function(gallery) {
-      var url = '#' + gallery.url;
+      var url = '#' + this.hashPrefix + '/' + gallery.slug;
       var $card = $('<div class="card">').append(
         $('<a>', {
           'href': url,
@@ -138,6 +145,7 @@
       $('.breadcrumb-item.active', this.$breadcrumb).text(gallery.title);
       this.$breadcrumb.css('visibility', 'visible');
       this.$backButtons.css('visibility', 'visible');
+      window.history.pushState(null, null, this.hashPrefix + '/' + gallery.slug);
     }
     Galleries.prototype.listIndex = function (e) {
       var loadedGalleries = $.map(this.items, function(item) {
@@ -148,6 +156,26 @@
       this.$title.text(this.listIndexTitle);
       this.$breadcrumb.css('visibility', 'hidden');
       this.$backButtons.css('visibility', 'hidden');
+      window.history.pushState(null, null, this.hashPrefix);
+    };
+
+    Galleries.prototype.handleHash = function() {
+      var hash = window.location.hash;
+      if (!hash || !hash.startsWith(this.hashPrefix)) {
+        this.listIndex();
+        return;
+      }
+      
+      if (hash.startsWith(this.hashPrefix + '/')) {
+        var slug = hash.substring(this.hashPrefix.length + 1);
+        var gallery = this.items.find(item => item.slug === slug);
+        
+        if (gallery) {
+          this.showGallery(gallery);
+          return;
+        }
+      }
+      this.listIndex();
     };
 
     window.Galleries = Galleries;
