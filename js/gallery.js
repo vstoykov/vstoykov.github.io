@@ -67,9 +67,11 @@
       this.listIndexTitle = this.$title.text();
       this.$breadcrumb = $(this.options.breadcrumb);
       this.$backButtons = $(this.options.backButtons);
+      this.hashPrefix = this.options.hashPrefix || '#gallery';
 
       this.$backButtons.on('click', function(e) {
         this.listIndex()
+        window.history.pushState(null, null, this.hashPrefix);
         e.preventDefault();
       }.bind(this));
 
@@ -138,6 +140,9 @@
       $('.breadcrumb-item.active', this.$breadcrumb).text(gallery.title);
       this.$breadcrumb.css('visibility', 'visible');
       this.$backButtons.css('visibility', 'visible');
+      
+      // Update URL hash
+      window.history.pushState(null, null, this.hashPrefix + '/' + gallery.slug);
     }
     Galleries.prototype.listIndex = function (e) {
       var loadedGalleries = $.map(this.items, function(item) {
@@ -148,6 +153,26 @@
       this.$title.text(this.listIndexTitle);
       this.$breadcrumb.css('visibility', 'hidden');
       this.$backButtons.css('visibility', 'hidden');
+      
+      // Update URL hash
+      window.history.pushState(null, null, this.hashPrefix);
+    };
+
+    Galleries.prototype.handleHash = function(hash) {
+      if (!hash || !hash.startsWith(this.hashPrefix + '/')) {
+        return false;
+      }
+      
+      var slug = hash.substring(this.hashPrefix.length + 1);
+      var gallery = this.items.find(function(item) {
+        return item.slug === slug;
+      });
+      
+      if (gallery) {
+        this.showGallery(gallery);
+        return true;
+      }
+      return false;
     };
 
     window.Galleries = Galleries;
