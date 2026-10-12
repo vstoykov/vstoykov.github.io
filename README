@@ -1,7 +1,6 @@
 This is single html file personal site. Live DEMO of site can be found at
 https://vstoykov.github.io/
 
-Purpose of this project is to show how can be created very simple web page
-may be a portfolio or something. Design created for this static site is used
-for creation of my real personal web site which can be found at
-https://venelin.sytes.net/. The live site is written in Django Framework
+Purpose of this project is to show how can be created very simple web page,
+which can be a portfolio or something. Also different frontend experiments
+can be tested in this repository.
