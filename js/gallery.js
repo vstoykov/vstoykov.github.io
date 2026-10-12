@@ -71,7 +71,7 @@
       this.setupHashListener();
 
       this.$backButtons.on('click', function(e) {
-        this.listIndex();
+        this.listIndex(false);
         e.preventDefault();
       }.bind(this));
 
