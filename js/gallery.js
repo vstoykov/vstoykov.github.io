@@ -103,7 +103,12 @@
     };
 
     Galleries.prototype.setupHashListener = function() {
-      window.addEventListener('popstate', this.handleHash.bind(this));
+      var self = this;
+      window.addEventListener('popstate', function(event) {
+        if (window.location.hash.startsWith(self.hashPrefix)) {
+          self.handleHash();
+        }
+      });
     };
 
     Galleries.prototype.render = function () {
@@ -144,7 +149,7 @@
       $('.breadcrumb-item.active', this.$breadcrumb).text(gallery.title);
       this.$breadcrumb.css('visibility', 'visible');
       this.$backButtons.css('visibility', 'visible');
-      if (updateHash !== false) {
+      if (updateHash) {
         window.history.pushState(null, null, this.hashPrefix + '/' + gallery.slug);
       }
     }
@@ -157,7 +162,7 @@
       this.$title.text(this.listIndexTitle);
       this.$breadcrumb.css('visibility', 'hidden');
       this.$backButtons.css('visibility', 'hidden');
-      if (updateHash !== false) {
+      if (updateHash) {
         window.history.pushState(null, null, this.hashPrefix);
       }
     }
@@ -165,7 +170,7 @@
     Galleries.prototype.handleHash = function() {
       var hash = window.location.hash;
       if (!hash || !hash.startsWith(this.hashPrefix)) {
-        this.listIndex(false);
+        this.listIndex();
         return;
       }
       
@@ -174,11 +179,11 @@
         var gallery = this.items.find(item => item.slug === slug);
         
         if (gallery) {
-          this.showGallery(gallery, false);
+          this.showGallery(gallery);
           return;
         }
       }
-      this.listIndex(false);
+      this.listIndex();
     }
 
     window.Galleries = Galleries;
