@@ -148,7 +148,7 @@
         window.history.pushState(null, null, this.hashPrefix + '/' + gallery.slug);
       }
     }
-    Galleries.prototype.listIndex = function (e, updateHash) {
+    Galleries.prototype.listIndex = function (updateHash) {
       var loadedGalleries = $.map(this.items, function(item) {
         return item.$element ? item.$element.get(0) : null;
       }).filter(Boolean);
